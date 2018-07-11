@@ -26,10 +26,12 @@ public class RNPushNotificationListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, final Bundle bundle) {
+        Log.v(LOG_TAG, LOG_TAG + " on message received");
         JSONObject data = getPushData(bundle.getString("data"));
+        int badge = Integer.parseInt(bundle.getString("badge", "-1"));
         if (data != null) {
             if (!bundle.containsKey("message")) {
-                bundle.putString("message", data.optString("alert", null));
+                bundle.putString("message", data.optString("alert", "Notification received"));
             }
             if (!bundle.containsKey("title")) {
                 bundle.putString("title", data.optString("title", null));
@@ -41,10 +43,10 @@ public class RNPushNotificationListenerService extends GcmListenerService {
                 bundle.putString("color", data.optString("color", null));
             }
 
-            final int badge = data.optInt("badge", -1);
-            if (badge >= 0) {
-                ApplicationBadgeHelper.INSTANCE.setApplicationIconBadgeNumber(this, badge);
-            }
+            badge = data.optInt("badge", -1);
+        }
+        if (badge >= 0) {
+            ApplicationBadgeHelper.INSTANCE.setApplicationIconBadgeNumber(this, badge);
         }
 
         Log.v(LOG_TAG, "onMessageReceived: " + bundle);
